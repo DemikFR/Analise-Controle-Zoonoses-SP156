@@ -1,14 +1,15 @@
 <!-- PROJECT LOGO -->
 <br />
 <div align="center">
-
   <h1 align="center">Análise do Controle de Zooneses do SP156</h1>
 
   <p align="center">
     Análise dos Dados do portal SP156 da Prefeitura de SP com Power BI
   </p>
+  <p align="center">
+    Os dados usados se encontram na base de <a href="http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156">dados abertos da Prefeitura de SP</a> .
+  </p>
 </div>
-http://transparencia.prefeitura.sp.gov.br/wp-content/uploads/2020/11/INOVA%C3%87%C3%83O-E-TECNOLOGIA.png
 
 
 <!-- TABLE OF CONTENTS -->
@@ -55,18 +56,17 @@ http://transparencia.prefeitura.sp.gov.br/wp-content/uploads/2020/11/INOVA%C3%87
 <!-- Sobre o Projeto -->
 ## Sobre o Projeto
 
-Este projeto tem o objetivo de treinar e demonstrar as minhas habilidades em análise de dados com o SQL Server.
+A finalidade do uso dos dados é realizar análises de dados para identificar problemas de eficiência nos serviços de controle de zooneses prestados pela Prefeitura de São Paulo aos cidadãos, com o objetivo de promover a transparência, melhorar a qualidade dos serviços e otimizar os recursos públicos. Além disso, os dados serão utilizados para fins de aprimoramento pessoal em análise de dados, visando ao desenvolvimento profissional.
 
 
 
 ### Ferramentas
 
-Para realizar este projeto, foi usado a seguinte ferramenta:
+Para realizar este projeto, foi usado as seguintes ferramenta:
 
 
-
-* [![SQL-Server][MicrosoftSQLServer.sql]][SQLServer-url]
-
+* [![Python][Python.py]][Python-url]
+* [![Power-BI][Power-BI.pbix]][Power-BI-url]
 
 
 
@@ -75,11 +75,14 @@ Para realizar este projeto, foi usado a seguinte ferramenta:
 
 1. Clone este Repositório
    ```sh
-   git clone https://github.com/DemikFR/SQL-Server-Sakila-Data-Analysis.git
+   git clone https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156.git
    ```
-2. Execute a query que está em '/sql-server-sakila-db/sql-server-sakila-db'
+2. Busque o link de download da base dados da Prefeitura de SP para ser usado conforme o script Request do "data_scraping" de Python.
 
-A base de dados Sakila será instalada em seu SQL-Server.
+### Buscar os Dados
+
+Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma que de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests e Pandas, a fim de concatenar os dados em um único dataset.
+
 
 
 
@@ -95,11 +98,13 @@ Distributed under the BSD 2-Clause License. See `LICENSE.txt` for more informati
 
 Demik Freitas - [Linkedin](https://www.linkedin.com/in/demik-freitas/) - demik.freitast2d18@gmail.com
 
-Project Link: [https://github.com/DemikFR/SQL-Server-Sakila-Data-Analysis](https://github.com/DemikFR/SQL-Server-Sakila-Data-Analysis)
+Project Link: [https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156)
 
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[MicrosoftSQLServer.sql]: https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white
-[SQLServer-url]: https://www.microsoft.com/pt-br/sql-server/sql-server-downloads
+[Python.py]: https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54
+[Python-url]: https://www.python.org/
+[Power-BI.pbix]: https://img.shields.io/badge/power_bi-F2C811?style=for-the-badge&logo=powerbi&logoColor=black
+[Power-BI-url]: https://www.python.org/
