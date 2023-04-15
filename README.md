@@ -7,7 +7,7 @@
     Análise dos Dados do portal SP156 da Prefeitura de SP com Power BI
   </p>
   <p align="center">
-    Os dados usados se encontram na base de <a href="http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156">dados abertos da Prefeitura de SP</a> .
+    Os dados usados se encontram na base de <a href="http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156">dados abertos da Prefeitura de SP</a>.
   </p>
 </div>
 
@@ -24,9 +24,9 @@
     </li>
     <li><a href="#iniciar-o-projeto">Iniciar o Projeto</a></li>
     <li>
-      <a href="#entender-a-base">Entender a Base</a>
+      <a href="#iniciar-o-projeto">Iniciar o Projeto</a>
       <ul>
-        <li><a href="#resumo-das-tabelas-e-campos-específicos">Resumo das Tabelas e Campos Específicos</a></li>
+        <li><a href="#buscar-os-dados">Buscar os Dados Necessários</a></li>
       </ul>  
     </li>
     <li>
@@ -81,9 +81,9 @@ Para realizar este projeto, foi usado as seguintes ferramenta:
 
 ### Buscar os Dados
 
-Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma que de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests e Pandas, a fim de concatenar os dados em um único dataset.
+Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma que de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests e Pandas (StringIO inclusa), a fim de concatenar os dados em um único dataset.
 
-
+Após a importação das bibliotecas, o código 
 
 
 <!-- LICENSE -->
