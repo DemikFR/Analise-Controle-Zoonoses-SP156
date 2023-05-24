@@ -58,6 +58,8 @@
 
 A finalidade do uso dos dados é realizar análises de dados para identificar problemas de eficiência nos serviços de controle de zooneses prestados pela Prefeitura de São Paulo aos cidadãos, com o objetivo de promover a transparência, melhorar a qualidade dos serviços e otimizar os recursos públicos. Além disso, os dados serão utilizados para fins de aprimoramento pessoal em análise de dados, visando ao desenvolvimento profissional.
 
+Para ser feita esta análise, foi necessário um processo de web scraping para automatizar a extração dos datasets, pois eles estão separados por datas e períodos de ano em cada página diferente, depois foi feito um processo ETL antes de salvar os dados para adequação aos requisitos de negócios.
+
 
 
 ### Ferramentas
@@ -79,9 +81,13 @@ Para realizar este projeto, foi usado as seguintes ferramenta:
    ```
 2. Busque o link de download da base dados da Prefeitura de SP para ser usado conforme o script Request do "data_scraping" de Python.
 
-### Buscar os Dados
+## Requisitos de Negócios
 
-Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma que de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests e Pandas (StringIO inclusa), a fim de concatenar os dados em um único dataset.
+
+
+## Extração (Web Scraping)
+
+Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests, Beautiful Soup e Pandas (StringIO inclusa), a fim de concatenar os dados em um único dataset.
 
 Após a importação das bibliotecas, o código 
 
