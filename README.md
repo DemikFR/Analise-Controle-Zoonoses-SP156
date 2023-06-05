@@ -23,10 +23,11 @@
       </ul>
     </li>
     <li><a href="#iniciar-o-projeto">Iniciar o Projeto</a></li>
+    <li><a href="#requisitos-de-negócios">Requisitos de Negócios</a></li>
     <li>
-      <a href="#iniciar-o-projeto">Iniciar o Projeto</a>
+      <a href="#extração-e-tratamento-dos-dados">Extração e Tratamento dos Dados</a>
       <ul>
-        <li><a href="#buscar-os-dados">Buscar os Dados Necessários</a></li>
+        <li><a href="#extração-e-tratamento-dos-dados">Extração e Tratamento dos Dados</a></li>
       </ul>  
     </li>
     <li>
@@ -58,7 +59,7 @@
 
 A finalidade do uso dos dados é realizar análises de dados para identificar problemas de eficiência nos serviços de controle de zooneses prestados pela Prefeitura de São Paulo aos cidadãos, com o objetivo de promover a transparência, melhorar a qualidade dos serviços e otimizar os recursos públicos. Além disso, os dados serão utilizados para fins de aprimoramento pessoal em análise de dados, visando ao desenvolvimento profissional.
 
-Para ser feita esta análise, foi necessário um processo de web scraping para automatizar a extração dos datasets, pois eles estão separados por datas e períodos de ano em cada página diferente, depois foi feito um processo ETL antes de salvar os dados para adequação aos requisitos de negócios.
+Para ser feita esta análise, foi necessário um processo de web scraping para automatizar a extração dos datasets, pois eles estão separados por datas e períodos de ano em cada página diferente, depois foi feito um processo ETL para adequação aos requisitos de negócios, antes de salvar os dados.
 
 
 
@@ -81,11 +82,33 @@ Para realizar este projeto, foi usado as seguintes ferramenta:
    ```
 2. Busque o link de download da base dados da Prefeitura de SP para ser usado conforme o script Request do "data_scraping" de Python.
 
+
+
 ## Requisitos de Negócios
 
+Como mencionado anteriormente, o objetivo deste projeto é identificar os principais pontos de melhoria nos serviços prestados e os problemas que afetam a população de São Paulo, no caso, com base no período de 2012 ao último mês de 2022. Com base nisso, faremos algumas perguntas:
+
+1. Quais foram os maiores problemas?
+
+2. Em relação aos serviços prestados, quais foram os que tiveram mais casos?
+
+4. Quais distritos tiveram mais denúncias?
+
+5. Qual a quantidade de denúncias recebidas por ano?
+
+6. Qual a grandeza de denúncias de "Animais que transmitem doenças" e quais foram os casos que tiveram mais denúncias?
+
+7. Quais foram os distritos que mais tiveram denúncias de "Animais que transmitem doenças"?
+
+8. Quantos serviços foram finalizados ou não?
+
+9. No geral, é possível determinar se o serviço prestado pela Prefeitura de São Paulo é eficiente?
+
+Com essas perguntas, já será possível mapear todo o processo de análise, incluindo o tratamento dos dados.
 
 
-## Extração (Web Scraping)
+
+## Extração e Tratamento dos Dados
 
 Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests, Beautiful Soup e Pandas (StringIO inclusa), a fim de concatenar os dados em um único dataset.
 
