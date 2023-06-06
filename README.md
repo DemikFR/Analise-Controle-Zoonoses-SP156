@@ -25,26 +25,10 @@
     <li><a href="#iniciar-o-projeto">Iniciar o Projeto</a></li>
     <li><a href="#requisitos-de-negócios">Requisitos de Negócios</a></li>
     <li>
-      <a href="#extração-e-tratamento-dos-dados">Extração e Tratamento dos Dados</a>
+      <a href="#web-scraping-e-tratamento-dos-dados">Web Scraping e Tratamento dos Dados</a>
       <ul>
-        <li><a href="#extração-e-tratamento-dos-dados">Extração e Tratamento dos Dados</a></li>
+        <li><a href="#web-scraping">Web Scraping</a></li>
       </ul>  
-    </li>
-    <li>
-      <a href="#análise-do-negócio">Análise do Negócio</a>
-      <ul>
-        <li><a href="#quais-foram-os-5-gêneros-mais-alugados">Quais foram os 5 gêneros mais alugados?</a></li>
-        <li><a href="#existe-alguma-possibilidade-desses-gêneros-serem-os-mais-alugados-por-terem-mais-filmes">Existe alguma possibilidade desses gêneros serem os mais alugados por terem mais filmes?</a></li>
-        <li><a href="#quais-foram-os-5-filmes-mais-alugados">Quais foram os 5 filmes mais alugados?</a></li>
-        <li><a href="#quais-foram-os-5-filmes-menos-alugados">Quais foram os 5 filmes menos alugados?</a></li>
-        <li><a href="#existe-algum-filme-que-não-foi-alugado">Existe algum filme que não foi alugado?</a></li>
-        <li><a href="#por-ordem-decrescente-qual-foi-o-lucro-que-cada-loja-recebeu">Por ordem decrescente, qual foi o lucro que cada loja recebeu?</a></li>
-        <li><a href="#quem-são-os-10-maiores-clientes">Quem são os 10 maiores clientes?</a></li>
-        <li><a href="#quais-são-as-cidades-onde-residem-os-10-maiores-clientes">Quais são as cidades onde residem os 10 maiores clientes?</a></li>
-	<li><a href="#quais-são-as-cinco-cidades-com-o-maior-número-de-clientes-exceto-as-que-já-possuem-lojas">Quais são as cinco cidades com o maior número de clientes, exceto as que já possuem lojas?</a></li>
-        <li><a href="#quem-é-o-ator-que-tem-mais-filmes-alugados">Quem é o ator que tem mais filmes alugados?</a></li>
-        <li><a href="#qual-foi-o-lucro-médio-de-cada-ano">Existe algum filme que não foi alugado?</a></li>
-      </ul> 
     </li>
     <li><a href="#agradecimentos">Agradecimentos</a></li>
     <li><a href="#license">License</a></li>
@@ -80,7 +64,17 @@ Para realizar este projeto, foi usado as seguintes ferramenta:
    ```sh
    git clone https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156.git
    ```
-2. Busque o link de download da base dados da Prefeitura de SP para ser usado conforme o script Request do "data_scraping" de Python.
+   
+2. Instale as bibliotecas que serão usadas no projeto
+   ```py
+   pip install requests
+   pip install BeautifulSoup
+   pip install pandas
+   pip install StringIO
+   pip install chardet
+   ```
+
+3. Busque o link de download da base dados da Prefeitura de SP para ser usado conforme o script Request do "data_scraping" de Python.
 
 
 
@@ -88,31 +82,89 @@ Para realizar este projeto, foi usado as seguintes ferramenta:
 
 Como mencionado anteriormente, o objetivo deste projeto é identificar os principais pontos de melhoria nos serviços prestados e os problemas que afetam a população de São Paulo, no caso, com base no período de 2012 ao último mês de 2022. Com base nisso, faremos algumas perguntas:
 
-1. Quais foram os maiores problemas?
+* Quais foram os maiores problemas?
 
-2. Em relação aos serviços prestados, quais foram os que tiveram mais casos?
+* Em relação aos serviços prestados, quais foram os que tiveram mais casos?
 
-4. Quais distritos tiveram mais denúncias?
+* Quais distritos tiveram mais denúncias?
 
-5. Qual a quantidade de denúncias recebidas por ano?
+* Qual a quantidade de denúncias recebidas por ano?
 
-6. Qual a grandeza de denúncias de "Animais que transmitem doenças" e quais foram os casos que tiveram mais denúncias?
+* Qual a grandeza de denúncias de "Animais que transmitem doenças" e quais foram os casos que tiveram mais denúncias?
 
-7. Quais foram os distritos que mais tiveram denúncias de "Animais que transmitem doenças"?
+* Quais foram os distritos que mais tiveram denúncias de "Animais que transmitem doenças"?
 
-8. Quantos serviços foram finalizados ou não?
+* Quantos serviços foram finalizados ou não?
 
-9. No geral, é possível determinar se o serviço prestado pela Prefeitura de São Paulo é eficiente?
+* No geral, é possível determinar se o serviço prestado pela Prefeitura de São Paulo é eficiente?
 
 Com essas perguntas, já será possível mapear todo o processo de análise, incluindo o tratamento dos dados.
 
 
 
-## Extração e Tratamento dos Dados
+## Web Scraping e Tratamento dos Dados
 
-Os dados disponibilizados pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, inclusive por meio de sua API que também apresenta essa mesma divisão. Para otimizar a forma de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir, utilizando as bibliotecas Requests, Beautiful Soup e Pandas (StringIO inclusa), a fim de concatenar os dados em um único dataset.
+Os dados fornecidos pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, tanto na interface do usuário como na API. Para simplificar o processo de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir. Esse script utiliza as bibliotecas Requests, Beautiful Soup, Pandas (incluindo StringIO) e chardet para concatenar os dados em um único conjunto de dados. Em seguida, os dados passam por um processo de tratamento para atender aos requisitos de negócios, reduzindo seu tamanho e otimizando o processamento no Power BI.
 
-Após a importação das bibliotecas, o código 
+### Web Scraping
+
+Após ter estudado a estrutura HTML do site da Prefeitura, foi criada uma função para encontrar a tag <code>&lt;a&gt;</code> a partir de um padrão de texto no atributo "title" do HTML.
+
+   ```py
+   def get_soup(url, search):
+       response = requests.get(url)
+    
+       # Verificar se a conexão foi bem sucedida
+       if response.status_code == 200:
+           soup = bs(response.content, 'html.parser')
+
+           # Retornar as páginas onde terão as de download
+           return soup.find_all('a', href=True, attrs={'title': re.compile(search)}) 
+       else:
+           return f'Página{link["title"]} está inacessível. Código: {response.status_code}'
+   ```
+   
+A função recebe dois parâmetros: o primeiro é a URL na qual deve-se procurar a tag e o segundo é o padrão de texto que deve ser usado para localizar a tag. É importante ressaltar que o texto fornecido deve ser uma expressão regular (regex).
+
+Após o processo anterior criado, já é possível criar o web scraping. Assim, foi criado um loop for que chama a função que foi criada anteriormente e percorre a lista que ela retorna 
+
+   ```py
+   # URL base do site da Prefeitura
+   url_base = 'http://dados.prefeitura.sp.gov.br'
+   
+   # URL inicial onde estarão os links para os datasets
+   url_inicial = 'http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156'
+   
+   # extensão do dataset para filtrar
+   file_type = '.csv'
+   
+   for link in get_soup(url_inicial, r'^Dados do SP156 -.*'):
+       
+       # Pegar o link de download
+       for page in get_soup(url_base+link['href'], r'^http://dados.prefeitura.sp.gov.br/dataset/.*'):
+           link_download = page['href']
+           
+           # Verificar se é o arquivo a ser baixado é Excel
+           if file_type in link_download:
+               
+               # Pegar o conteúdo do CSV
+               response_csv = requests.get(page['href'])
+               
+               # Cada datset tem um encoding diferente, por isso foi necessário usar a biblioteca chardet para identificar 
+               # automaticamente qual é.
+               encoding = chardet.detect(response_csv.content)['encoding']
+               
+               # Colocar os dados na tabela auxiliar
+               if int(link["title"][-4:]) >= 2021:
+                   df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=';', encoding=encoding, low_memory=False)
+               else:
+                   df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=',', encoding=encoding, low_memory=False)
+                   
+               dfs.append(df3)  # Adicionar o DataFrame intermediário à lista
+               
+               # Inserir os dados na planilha original
+               print(f'Os dados do {link["title"]} foram inseridos com sucesso.')
+   ```
 
 
 <!-- LICENSE -->
