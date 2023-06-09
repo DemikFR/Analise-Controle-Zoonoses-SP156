@@ -9,6 +9,7 @@
   <p align="center">
     Os dados usados se encontram na base de <a href="http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156">dados abertos da Prefeitura de SP</a>.
   </p>
+  <h3 align=center>🔨Projeto ainda em desenvolvimento.🔨</h3><br>
 </div>
 
 
@@ -25,12 +26,13 @@
     <li><a href="#iniciar-o-projeto">Iniciar o Projeto</a></li>
     <li><a href="#requisitos-de-negócios">Requisitos de Negócios</a></li>
     <li>
-      <a href="#web-scraping-e-tratamento-dos-dados">Web Scraping e Tratamento dos Dados</a>
+      <a href="#extração-e-pré-processamento">Extração e Pré-processamento</a>
       <ul>
-        <li><a href="#web-scraping">Web Scraping</a></li>
+        <li><a href="#extração-web-scraping">Extração (Web Scraping)</a></li>
+        <li><a href="#pré-processamento">Pré-processamento</a></li>
+        <li><a href="#armazenamento-dos-dados">Armazenamento dos Dados</a></li>
       </ul>  
     </li>
-    <li><a href="#agradecimentos">Agradecimentos</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -102,11 +104,11 @@ Com essas perguntas, já será possível mapear todo o processo de análise, inc
 
 
 
-## Web Scraping e Tratamento dos Dados
+## Extração e Pré-processamento
 
-Os dados fornecidos pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, tanto na interface do usuário como na API. Para simplificar o processo de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir. Esse script utiliza as bibliotecas Requests, Beautiful Soup, Pandas (incluindo StringIO) e chardet para concatenar os dados em um único conjunto de dados. Em seguida, os dados passam por um processo de tratamento para atender aos requisitos de negócios, reduzindo seu tamanho e otimizando o processamento no Power BI.
+Os dados fornecidos pela Prefeitura estão organizados em páginas separadas para cada trimestre e ano, tanto na interface do usuário como na API. Para simplificar o processo de extração, foi desenvolvido um script em Python que será explicado detalhadamente a seguir. Esse script utiliza as bibliotecas Requests, Beautiful Soup, Pandas (incluindo StringIO) e chardet para concatenar os dados em um único conjunto de dados. Em seguida, os dados passam por um processo de transformação para atender aos requisitos de negócios, reduzindo seu tamanho e otimizando o processamento no Power BI.
 
-### Web Scraping
+### Extração (Web Scraping)
 
 Após ter estudado a estrutura HTML do site da Prefeitura, foi criada uma função para encontrar a tag <code>&lt;a&gt;</code> a partir de um padrão de texto no atributo "title" do HTML.
 
@@ -197,7 +199,7 @@ Por fim, o conteúdo completo da lista é adicionado ao dataframe principal, que
    df = pd.concat(dfs, ignore_index=True)
    ```
 
-### Transformação dos Dados
+### Pré-processamento
 
 Os dados disponibilizados pela Prefeitura contêm várias questões problemáticas, como a presença de 32 atributos e diversas categorias redundantes. Portanto, é necessário realizar um pré-processamento de acordo comos requisitos de negócio, já que sem realiza-lo, seria completamente inviável realizar qualquer tipo de análise. 
 
@@ -248,7 +250,7 @@ A seguir, serão enumeradas as ações realizadas para abordar essas questões:
     df2 = df1.rename({'Assunto': 'Tipo de Serviço'}, axis=1)
     ```
     
-3. <b>Remover redundâncias no "Tipo de Serviço"</b>:
+4. <b>Remover redundâncias no "Tipo de Serviço"</b>:
 
     Existe o "Tipo de Serviço" chamado "Animais que transmitem doenças ou risco à saúde", que abrange uma variedade de serviços relacionados a problemas como pernilongos, ratos e outros. No entanto, há outros tipos de serviço que poderiam se enquadrar nessa mesma categoria, mas estão separados, como "Animais/barata", "Animais/Aranha" e outros. Para solucionar isso, todos os "Tipos de Serviço" que contenham a expressão "Animais /" serão convertidos para "Animais que transmitem doenças ou risco à saúde". É importante ressaltar que existem outros tipos de serviço que também possuem a expressão "Animais /", mas não se enquadram na categoria de "Animais que transmitem doenças ou risco à saúde". Esses casos serão ignorados no código.
     
@@ -272,8 +274,122 @@ A seguir, serão enumeradas as ações realizadas para abordar essas questões:
     ```py
     df2['Tipo de Serviço'] = df2['Tipo de Serviço'].str.replace('Dengue/chikungunya/zika (mosquito aedes aegypti)', 'Vistoria')
     ```
+    
+5. <b>Remover redundâncias nos serviços de "Animais que transmitem doenças ou risco à saúde"</b>:
+
+    Com o código a seguir, é possível visualizar todos os serviços classificados como "Animais que transmitem doenças ou risco à saúde" e identificar possíveis melhorias na forma como estão expressos:
+    
+    ```py
+    df2.loc[df2['Tipo de Serviço'] == 'Animais que transmitem doenças ou risco à saúde', 'Serviço'].drop_duplicates().sort_values()
+    ```
+    
+    Após análise, foi identificado que existem diversos serviços que estão separados, mas tratam do mesmo tema, como por exemplo: "Abelhas e Vespas", "Colmeia/Vespeiro instalado" e "Remoção de Abelhas, Vespas ou Marimbondos". Todos eles estão relacionados ao tema de abelhas, vespas e marimbondos. Diante disso, foi decidido manter o serviço "Remoção de Abelhas, Vespas ou Marimbondos" e unificar os outros dois. Essa abordagem será aplicada para outras inconsistências, conforme demonstrado no código abaixo:
+    
+    ```py
+    df3.loc[(df3['Serviço'] == 'Pernilongo/Mosquito') | (df3['Serviço'] == 'Reclamação de Pernilongo'), 'Serviço'] = 'Reclamação de Pernilongos e Mosquitos'
+    df3.loc[(df3['Serviço'] == 'Abelhas e Vespas') | (df3['Serviço'] == 'Colméia/Vespeiro instalado'), 'Serviço'] = 'Remoção de Abelhas, Vespas ou Marimbondos'
+    df3.loc[df3['Serviço'] == 'Escorpião', 'Serviço'] = 'Escorpiões'
+    df3.loc[df3['Serviço'] == 'Ocorrências com morcego', 'Serviço'] = 'Reclamação de Morcegos'
+    ```
+    
+    Existem alguns serviços que contêm palavras desnecessárias, as quais serão removidas para fins de padronização. Por exemplo, têm registros como "Pernilongo/Mosquito - Solicitar vistoria em local infestado" e "Pombos - Solicitar vistoria em local infestado", enquanto já existe "Reclamação de mosquitos" e "Reclamação de pombos", que são mais adequados para descrever os serviços oferecidos pela Prefeitura. Para solucionar essa questão, foi desenvolvido um código para substituir todos os serviços que possuem um hífen ("-") por "Reclamação de...", assim padronizando a nomenclatura dos serviços.
+    
+    ```py
+    df3.loc[df3['Tipo de Serviço'] == 'Animais que transmitem doenças ou risco à saúde', 'Serviço'] = df3.loc[df3[
+        'Tipo de Serviço'] == 'Animais que transmitem doenças ou risco à saúde', 'Serviço'].str.replace(r' -.*', '', regex=True)
+        
+    df3.loc[df3['Serviço'].str.split().str.len() == 1, 'Serviço'] = 'Reclamação de ' + df3['Serviço']
+    ```
+    
+6. <b>Remover redundâncias nos serviços que não são "Animais que transmitem doenças ou risco à saúde"</b>:
+    
+    Diferente da última etapa, esta será para padronizar os serviços que não são "Animais que transmitem doenças ou risco à saúde", portanto o seguinte código foi executado:
+
+    ```py
+    pd.set_option('display.max_colwidth', None) # Poder ler todos os textos
+    df3.loc[df3['Tipo de Serviço'] != 'Animais que transmitem doenças ou risco à saúde', 'Serviço'].drop_duplicates().sort_values()
+    ```
+    
+    Foram identificados alguns caracteres incorretos, como espaços em branco ou pontos de interrogação que foram inseridos por engano. Para corrigir essa questão, o seguinte código foi executado:
+    
+    ```py
+    df3['Serviço'] = df3['Serviço'].str.replace('?', '-')
+    df3['Serviço'] = df3['Serviço'].str.replace('–', '-')
+    df3['Serviço'] = df3['Serviço'].str.replace('Invadiu o local ', 'Invadiu o local')
+    ```
+    
+    Durante o processo de tratamento dos caracteres incoerentes, foi realizada uma busca por redundâncias no conjunto de dados. Foram identificadas três categorias relacionadas a animais acidentados ou atropelados, todas contendo a mesma informação. Para padronizar esses registros, optou-se por alterar todas as ocorrências para "Atropelado ou Acidentado vivo e sem proprietário".
+
+    Outra redundância encontrada foi em relação às categorias que tratam das condições de criação. As categorias "Condições de criação", "Denunciar condições inadequadas de criação" e "Condições de criação / maus tratos" representam o mesmo problema. Foi decidido manter a categoria "Condições de criação / maus tratos" por ser mais eficiente na expressão da situação.
+
+    A terceira redundância diz respeito à remoção de animais mortos em vias públicas. A categoria "Remoção de animal morto em via pública" apresenta variações, como palavras no plural ou singular, ou até mesmo acréscimos de palavras que não fazem diferença no resultado final.
+
+    A seguir, será apresentado o código responsável por realizar essas alterações:
+    
+    ```py
+    df3.loc[df3['Serviço'].str.contains('Atropelado') | df3['Serviço'].str.contains('Acidentado'), 'Serviço'
+           ] = 'Atropelado ou Acidentado vivo e sem proprietário'
+    df3.loc[df3['Serviço'].str.match('.*ondições'), 'Serviço'
+       ] = 'Condições de criação / maus tratos'
+    df3.loc[df3['Serviço'].str.match('.*morto em via.*'), 'Serviço'
+       ] = 'Remoção de animal morto em via pública'
+    ```
+    
+    Com a execução desses códigos, as redundâncias foram eliminadas e as categorias foram padronizadas, resultando em dados mais consistentes.
+    
+    Durante a análise dos serviços, identificou-se que alguns deles não estão descritos de forma clara, como é o caso de "Solto em via pública". Para melhorar a compreensão desses serviços, foi desenvolvido um código que utiliza o "Tipo de Serviço" para complementar o texto. Dessa forma, o serviço será apresentado de maneira mais explicativa, como por exemplo "Cão Solto em via pública" no caso mencionado anteriormente.
+
+    A seguir, é apresentado o código utilizado para realizar essa melhoria na descrição dos serviços:
+    
+    ```py
+    condicoes = (df3['Serviço'] == 'Em parques') | (df3['Serviço'] == 'Invadiu o local') | (df3['Serviço'] == 'Solto em via pública')
+    df3.loc[condicoes, 'Serviço'] = df3.loc[condicoes, 'Tipo de Serviço'].str.cat(df3.loc[condicoes, 'Serviço'], sep=' ')
+    
+    condicoes = (df3['Serviço'] == 'Diversas ocorrências') | (df3['Serviço'] == 'Ocorrências rotineiras')
+    df3.loc[condicoes, 'Serviço'] = df3.loc[condicoes, 'Tipo de Serviço'].str.cat(df3.loc[condicoes, 'Serviço'], sep=' - ')
+    ```
+    
+    É importante observar que, durante o processo, foram utilizados dois separadores distintos para diferentes casos. No primeiro caso, onde o objetivo era formar uma frase contínua, foi utilizado um único espaço como separador. Isso contribui para a legibilidade e fluidez do texto, seguindo as convenções gramaticais de espaçamento entre palavras.
+
+    No segundo caso, em que os termos "diversos casos" e "Ocorrências rotineiras" atuam como agregadores, optou-se pelo uso de um hífen como separador. Essa escolha se baseia em uma consideração gramatical, onde o hífen é utilizado para unir termos que formam uma unidade semântica e representam uma única ideia.
+
+    Dessa forma, ao utilizar o hífen como separador, está sendo indicado que "diversos casos" e "Ocorrências rotineiras" são elementos que estão relacionados e constituem um conjunto coeso.
+     
+7. <b>Formatação de datas</b>:
+
+    Durante o processo de extração dos datasets, foi identificado que eles possuem três formatos diferentes para representar as datas. Esses formatos incluem apenas a data no formato "yyyy-mm-dd", uma combinação de data e hora no formato datetime com código e outra representação apenas como datetime.
+
+    Com o objetivo de padronizar a representação das datas e facilitar a manipulação dos dados, foi tomada a decisão de realizar um processo de extração para manter somente o formato "yyyy-mm-dd" como data. Isso permitirá uma uniformidade nos registros e facilitará a análise e comparação dos dados ao longo do tempo.
+
+    Ao adotar essa abordagem, será possível garantir consistência e coerência nos datasets, tornando-os mais acessíveis e compatíveis com as operações de processamento e análise que serão realizadas posteriormente no Power BI.
+    
+    ```py
+    df4['Data de abertura'] = df4['Data de abertura'].str.slice(0,10)
+    
+    df4.loc[df4['Data do parecer'].notnull(), 'Data do parecer'] = df4.loc[
+    df4['Data do parecer'].notnull(), 'Data do parecer'].str.slice(0,10)
+    ```
+    
+    Por ter valores nulos (no caso os serviços que ainda não foram atendidos) a extração de data foi realizada apenas para os valores não nulos, conforme o código anterior.
+    
+Após a conclusão desse processo, torna-se evidente uma notável melhoria na consistência dos dados. Além disso, houve uma significativa redução no tamanho do conjunto de dados e na quantidade de registros. Essa redução é de extrema importância, uma vez que um volume excessivo de registros poderia dificultar ou até mesmo inviabilizar a análise dos dados.
+
+Portanto, com o processo de redução e otimização finalizado, os dados agora estão prontos para serem explorados de forma mais eficiente e eficaz, possibilitando uma análise mais robusta e precisa.
 
 
+### Armazenamento dos Dados
+
+Para que os dados possam ser analisados no Power BI, é necessário armazená-los em um local apropriado. Neste caso, optamos por salvar os dados em formato Parquet compactado. Essa escolha foi baseada em um estudo prévio realizado com os mesmos dados em formato CSV, no qual foi constatado que o Parquet ocuparia 80.000 KB a menos em espaço de armazenamento em comparação ao CSV. Além disso, sem o pré-processamento realizado posteriormente, o tamanho ocupado em disco seria superior a 1 GB.
+
+Portanto, para salvar os dados no formato Parquet compactado com compressão Gzip, foi utilizado o seguinte código:
+
+  ```py
+  df4.to_parquet('sp156_all_time.gzip',
+              compression='gzip',
+              index=False)
+  ```
+    
+    
 <!-- LICENSE -->
 ## License
 
