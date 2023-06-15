@@ -15,7 +15,7 @@
 
 <!-- TABLE OF CONTENTS -->
 <details>
-  <summary>Table of Contents</summary>
+  <summary>Sumário</summary>
   <ol>
     <li>
       <a href="#sobre-o-projeto">Sobre o Projeto</a>
@@ -31,6 +31,7 @@
         <li><a href="#extração-web-scraping">Extração (Web Scraping)</a></li>
         <li><a href="#pré-processamento">Pré-processamento</a></li>
         <li><a href="#armazenamento-dos-dados">Armazenamento dos Dados</a></li>
+        <li><a href="#considerações-finais-do-processamento">Considerações Finais do Processamento</a></li>
       </ul>  
     </li>
     <li><a href="#license">License</a></li>
@@ -157,7 +158,7 @@ Após a criação do processo anterior, agora é possível implementar o web scr
                encoding = chardet.detect(response_csv.content)['encoding']
                
                # Colocar os dados na tabela auxiliar
-               if int(link["title"][-4:]) >= 2021:
+               if int(link["title"][-4:]) >= 2020:
                    df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=';', encoding=encoding, low_memory=False)
                else:
                    df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=',', encoding=encoding, low_memory=False)
@@ -176,10 +177,10 @@ Com o conteúdo do conjunto de dados, é possível utilizá-lo no chardet para d
    response_csv = requests.get(page['href'])
    encoding = chardet.detect(response_csv.content)['encoding']
    ```
-Após analisar a estrutura dos dados disponíveis, observamos que os conjuntos de dados a partir de 2021 utilizam o ponto e vírgula ";" como delimitador, enquanto os anteriores utilizam a vírgula ",". Com base nessa observação, foi implementada uma condição para verificar a data do conjunto de dados. Utilizando o final do atributo "title" de cada dataset em uma condição, é possível identificar a qual data ele pertence e, assim, determinar qual delimitador deve ser utilizado durante o processamento.
+Após analisar a estrutura dos dados disponíveis, observamos que os conjuntos de dados a partir de 2020 utilizam o ponto e vírgula ";" como delimitador, enquanto os anteriores utilizam a vírgula ",". Com base nessa observação, foi implementada uma condição para verificar a data do conjunto de dados. Utilizando o final do atributo "title" de cada dataset em uma condição, é possível identificar a qual data ele pertence e, assim, determinar qual delimitador deve ser utilizado durante o processamento.
 
    ```py
-   if int(link["title"][-4:]) >= 2021:
+   if int(link["title"][-4:]) >= 2020:
        df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=';', encoding=encoding, low_memory=False)
    else:
        df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=',', encoding=encoding, low_memory=False)
@@ -286,9 +287,10 @@ A seguir, serão enumeradas as ações realizadas para abordar essas questões:
     Após análise, foi identificado que existem diversos serviços que estão separados, mas tratam do mesmo tema, como por exemplo: "Abelhas e Vespas", "Colmeia/Vespeiro instalado" e "Remoção de Abelhas, Vespas ou Marimbondos". Todos eles estão relacionados ao tema de abelhas, vespas e marimbondos. Diante disso, foi decidido manter o serviço "Remoção de Abelhas, Vespas ou Marimbondos" e unificar os outros dois. Essa abordagem será aplicada para outras inconsistências, conforme demonstrado no código abaixo:
     
     ```py
-    df3.loc[(df3['Serviço'] == 'Pernilongo/Mosquito') | (df3['Serviço'] == 'Reclamação de Pernilongo'), 'Serviço'] = 'Reclamação de Pernilongos e Mosquitos'
+    df3.loc[(df3['Serviço'].str.contains('Pernilongo/Mosquito', regex=True)) | (df3['Serviço'] == 'Reclamação de Pernilongo'), 'Serviço'] = 'Reclamação de Pernilongos e Mosquitos'
     df3.loc[(df3['Serviço'] == 'Abelhas e Vespas') | (df3['Serviço'] == 'Colméia/Vespeiro instalado'), 'Serviço'] = 'Remoção de Abelhas, Vespas ou Marimbondos'
-    df3.loc[df3['Serviço'] == 'Escorpião', 'Serviço'] = 'Escorpiões'
+    df3.loc[df3['Serviço'].str.contains('Escorpião', regex=True), 'Serviço'] = 'Escorpiões'
+    df3.loc[df3['Serviço'] == 'Reclamação de Escorpião', 'Serviço'] = 'Reclamação de Escorpiões'
     df3.loc[df3['Serviço'] == 'Ocorrências com morcego', 'Serviço'] = 'Reclamação de Morcegos'
     ```
     
@@ -354,8 +356,42 @@ A seguir, serão enumeradas as ações realizadas para abordar essas questões:
     No segundo caso, em que os termos "diversos casos" e "Ocorrências rotineiras" atuam como agregadores, optou-se pelo uso de um hífen como separador. Essa escolha se baseia em uma consideração gramatical, onde o hífen é utilizado para unir termos que formam uma unidade semântica e representam uma única ideia.
 
     Dessa forma, ao utilizar o hífen como separador, está sendo indicado que "diversos casos" e "Ocorrências rotineiras" são elementos que estão relacionados e constituem um conjunto coeso.
+
+7. <b>Capitalização dos Serviços (Capitalize)</b>:
+
+
+    Diversos serviços apresentam inconsistências na capitalização das palavras, com algumas iniciando em maiúsculas e outras não. Além disso, há redundâncias devido à etapa 5. Para corrigir esses problemas, é possível utilizar o processo de capitalize. No entanto, é importante observar algumas regras, uma vez que alguns serviços utilizam "-" e "/" para separar termos, e também contêm nomes próprios que requerem todas as palavras em maiúsculas. Devido a essas particularidades, não foi possível utilizar diretamente o método <code>capitalize()</code> do Python. Portanto, foi necessário criar a seguinte função e aplicá-la:
+
+    ```py
+    # Função para realizar o capitalize com a regra
+    def capitalize(servico):
+        # Descobrir o sinal que a frase usa
+        sinal = re.findall(r" - | / ", servico)
+        
+        if sinal:
+            # Dividindo a frase em duas partes: antes e depois do traço ou da barra
+            partes = re.split(sinal[0], servico)
+            
+            # Realizando o capitalize na primeira parte (antes do traço)
+            parte1 = partes[0].capitalize()
+    
+            # Realizando o capitalize na segunda parte (depois do traço)
+            parte2 = partes[1].capitalize()
+            
+            return "".join([parte1, sinal[0], parte2])
+        else:
+            return servico.capitalize()
+
+    # Aplicação da função
+    df3['Serviço'] = df3['Serviço'].apply(lambda x: capitalize(x) if not re.search(r'RGA|CMCA', x) else x)
+    ```
+
+    A função recebe o parâmetro "serviço" e realiza uma busca do "-" ou da "/" com uma expressão regex. Caso seja encontrado, o método "split" é aplicado para dividir o serviço com base no sinal encontrado. Em seguida, o método capitalize é executado em cada uma das partes resultantes. Por fim, o método join é utilizado para concatenar as duas partes capitalizadas, inserindo o sinal entre elas.
+
+    O método apply do Pandas foi utilizado na coluna "Serviço", invocando a função por meio de uma função lambda. A função lambda só aplicará a função se a coluna não contiver nenhuma sigla, uma vez que siglas não devem ser modificadas.
+  
      
-7. <b>Formatação de datas</b>:
+9. <b>Formatação de datas</b>:
 
     Durante o processo de extração dos datasets, foi identificado que eles possuem três formatos diferentes para representar as datas. Esses formatos incluem apenas a data no formato "yyyy-mm-dd", uma combinação de data e hora no formato datetime com código e outra representação apenas como datetime.
 
@@ -388,6 +424,11 @@ Portanto, para salvar os dados no formato Parquet compactado com compressão Gzi
               compression='gzip',
               index=False)
   ```
+
+
+### Considerações Finais do Processamento
+
+Embora tenha obtido sucesso em todo o processo de garantir a inclusão dos distritos na análise, é importante ressaltar que os distritos de denúncias anteriores a 2015 não devem ser utilizados. Isso ocorre porque os dados fornecidos pela Prefeitura de São Paulo para esses distritos não estão coerentes com os respectivos logradouros ou com os códigos de distrito da Fundação Seade que foram utilizados para a descrição. Portanto, recomenda-se excluir os dados dos distritos de denúncias anteriores a 2015 para evitar inconsistências na análise.
     
     
 <!-- LICENSE -->
