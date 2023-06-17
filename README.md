@@ -34,6 +34,12 @@
         <li><a href="#considerações-finais-do-processamento">Considerações Finais do Processamento</a></li>
       </ul>  
     </li>
+    <li>
+      <a href="#análise-dos-dados">Análise dos Dados</a>
+      <ul>
+        <li><a href="#análise-exploratória-dos-dados">Análise Exploratória dos dados</a></li>
+      </ul>  
+    </li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
   </ol>
@@ -429,8 +435,70 @@ Portanto, para salvar os dados no formato Parquet compactado com compressão Gzi
 ### Considerações Finais do Processamento
 
 Embora tenha obtido sucesso em todo o processo de garantir a inclusão dos distritos na análise, é importante ressaltar que os distritos de denúncias anteriores a 2015 não devem ser utilizados. Isso ocorre porque os dados fornecidos pela Prefeitura de São Paulo para esses distritos não estão coerentes com os respectivos logradouros ou com os códigos de distrito da Fundação Seade que foram utilizados para a descrição. Portanto, recomenda-se excluir os dados dos distritos de denúncias anteriores a 2015 para evitar inconsistências na análise.
+
+## Análise dos Dados
+
+Com os dados prontos, foi concluido o processo de análise. Inicialmente foi realizado uma análise exploratória dos dados, por meio da qual foi identificado insights e pontos relevantes relacionados ao serviço de controle de zoonoses da Prefeitura de São Paulo.
+
+Com base nos resultados dessa análise, foi elaborado um artigo público com o objetivo de apresentar e divulgar as principais descobertas e conclusões obtidas. Esse artigo busca disseminar o conhecimento adquirido durante a análise dos dados, permitindo que outras pessoas tenham acesso às informações e possam se beneficiar delas.
+
+Além do artigo, foi desenvolvido um dashboard interativo para os usuários interagirem com os dados de forma intuitiva e dinâmica. Esse dashboard é uma ferramenta visual que permite explorar os dados de maneira personalizada, selecionando diferentes variáveis, filtrando informações e visualizando gráficos.
+
+A seguir, serão apresentados em tópicos os processos de análise realizados.
+
+
+### Análise Exploratória dos Dados
+
+Inicialmente, os dados foram importados utilizando o Power Query, resultando na seguinte tabela:
+
+| Data de abertura | Tema   | Tipo de Serviço                 | Serviço                                                         | Distrito             | Status da solicitação | Data do parecer |
+|------------------|--------|---------------------------------|-----------------------------------------------------------------|----------------------|-----------------------|-----------------|
+| 31/12/2022       | Animais | Registro de animais - RGA       | Avisar sobre animal encontrado com Registro Geral do Animal (RGA) | CIDADE ADEMAR        | AGUARDANDO ATENDIMENTO | 31/12/2022      |
+| 31/12/2022       | Animais | Exames, vacinas e castração     | Castrar cães e gatos gratuitamente                               | null                 | FINALIZADA            | 01/01/2023      |
+| 31/12/2022       | Animais | Exames, vacinas e castração     | Castrar cães e gatos gratuitamente                               | null                 | FINALIZADA            | 02/01/2023      |
+| 31/12/2022       | Animais | Adoção de animais               | Adotar cães e gatos                                              | null                 | FINALIZADA            | 13/01/2023      |
+| 31/12/2022       | Animais | Criação inadequada de animais   | Condições de criação / Maus tratos                               | ERMELINO MATARAZZO    | INDEFERIDO            | 02/01/2023      |
+
+
+Com os dados disponíveis, será conduzida uma análise exploratória com o objetivo de extrair insights e conhecimentos relevantes. A seguir, será apresentado cada etapa realizada durante a análise.
+
+1. <b>Análise do campo 'distrito'</b>:
+
+    Durante o pré-processamento dos dados, constatou-se que o campo 'distrito' não possui total confiabilidade, e é recomendado não utilizar dados anteriores a 2015. Além disso, é possível que haja um grande número de valores nulos, o que impacta a compreensão adequada dos dados.
     
+    Para abordar essa questão, foi criada uma medida chamada 'qtd_nulos' utilizando a função Calculate do DAX. Essa medida permite identificar a quantidade de valores nulos no campo 'distrito', levando em consideração a restrição relacionada à data. Isso auxiliará a ter uma visão mais clara sobre a presença de dados faltantes nesse campo específico.
+
+    ```dax
+    qtd_nulos = CALCULATE(COUNTBLANK(sp156_all_time[Distrito]), YEAR(sp156_all_time[Data de abertura]) > 2014)
+    ```
+
+    Com esse valor, é possível determinar a porcentagem que os valores nulos representam em relação ao total de registros. Para calcular essa porcentagem, utilizamos a fórmula Divide, que divide o valor da quantidade de registros nulos pelo total de registros na tabela. Em seguida, convertemos essa medida para uma representação em porcentagem.
+
+    ```dax
+    % qtd nulos = DIVIDE([qtd_nulos], COUNTROWS(sp156_all_time))
+    ```
+  
+      
+    O valor obtido foi 33%, o que indica uma proporção significativa, correspondendo a aproximadamente 1/3 dos registros. No entanto, é importante lembrar que o campo "distrito" pode ter múltiplos significados, referindo-se tanto a bairros específicos quanto a divisões geográficas mais amplas. Essa ambiguidade pode comprometer a precisão da análise, pois os dados podem abranger tanto bairros individuais quanto áreas maiores, resultando em uma mistura de características distintas.
     
+    Dessa forma, para  garantir uma análise mais precisa, optou-se por não considerar a localização em que o serviço foi realizado.
+
+
+2. <b>Análise dos tipos de serviços</b>:
+
+   O campo "Tipo de Serviço" é utilizado para segmentar e determinar a natureza da ação que a Prefeitura deverá realizar. Por exemplo, pode se referir a uma vistoria em determinado local ou à vacinação de animais de estimação. Em outras palavras, o campo "Tipo de Serviço" é o meio pelo qual cada demanda ou solicitação é categorizada, garantindo que os serviços sejam direcionados e tratados adequadamente pela administração municipal.
+
+    Foi criado um gráfico de linha que representa os anos de 2012 a 2022 no eixo Y, enquanto cada linha representa as cinco maiores solicitações de serviços. Esse gráfico permitirá visualizar as variações de cada problema ao longo dos anos, fornecendo insights sobre se os serviços prestados diminuíram ou aumentaram por algum motivo específico.
+    
+    Além disso, um gráfico de barras foi criado ao lado para mostrar a proporção de cada solicitação em relação às demais. Esse gráfico facilitará a compreensão da distribuição relativa das solicitações e destacará quais problemas receberam maior ou menor número de pedidos.
+
+   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/aca67415-2e29-4454-8bf2-45b85bf100be)
+
+
+    Algumas informações adicionais e insights foram incorporados ao painel, com o objetivo de fornecer uma análise mais abrangente para os stakeholders. O texto será adaptado e implementado no artigo, visando proporcionar uma visão mais clara sobre as tendências e padrões dos serviços prestados.
+
+
+
 <!-- LICENSE -->
 ## License
 
