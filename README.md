@@ -483,10 +483,36 @@ Com os dados disponíveis, será conduzida uma análise exploratória com o obje
     
     Dessa forma, para  garantir uma análise mais precisa, optou-se por não considerar a localização em que o serviço foi realizado.
 
+2. <b>Análise dos Valores Gerais</b>:
 
-2. <b>Análise dos tipos de serviços</b>:
+    A fim de obter uma visão geral abrangente dos serviços prestados pela Prefeitura de São Paulo, foi realizada uma análise comparativa entre as ocorrências relacionadas a animais e o número total de solicitações registradas no Portal, que foi identificado durante o pré-processamento como sendo de 13.862.242 solicitações abrangendo todos os assuntos.
 
-   O campo "Tipo de Serviço" é utilizado para segmentar e determinar a natureza da ação que a Prefeitura deverá realizar. Por exemplo, pode se referir a uma vistoria em determinado local ou à vacinação de animais de estimação. Em outras palavras, o campo "Tipo de Serviço" é o meio pelo qual cada demanda ou solicitação é categorizada, garantindo que os serviços sejam direcionados e tratados adequadamente pela administração municipal.
+    Para realizar a análise da proporção dos serviços relacionados a animais em relação ao total geral de solicitações, foram criadas duas medidas distintas. A primeira medida atribuiu o valor total de solicitações gerais informado acima, enquanto a segunda medida utilizou a fórmula "COUNTROWS" para contar as ocorrências específicas relacionadas a animais. Em seguida, foi utilizado o operador "DIVIDE" para calcular a proporção dos serviços relacionados a animais em relação ao total geral. Assim, foi identificado que os serviços de animais, compõem apenas 5% de todas as solicitações efetuadas no portal.
+
+    Consequentemente, obteve-se o resultado que os serviços voltados para animais representam apenas 5% de todas as solicitações registradas no portal. Para apresentar, foi utilizar um gráfico de pizza para comparar ambos os valores.
+
+    ```dax
+    total_ocorrencias_portal = 13862242
+    total_ocorrencias_animais = COUNTROWS(sp156_all_time)
+    % servicos_animal = DIVIDE([total_ocorrencias_animais], [total_ocorrencias_portal])
+    ```
+
+    Durante essa etapa, também foi realizada a contagem dos tipos de serviços e serviços específicos relacionados a animais no portal. Para isso, foram criadas duas medidas distintas. A primeira medida denominada "qtd_tipo_servico" utilizou a função "SUMMARIZE" para agrupar os tipos de serviço e, em seguida, foi aplicada a função "COUNTROWS" para determinar quantos tipos de serviço estão presentes. A segunda medida seguiu uma fórmula semelhante, porém foi corretamente utilizada com base no campo "Serviço" para contar a quantidade de serviços específicos.
+
+    ```dax
+    qtd_tipo_servico = COUNTROWS(SUMMARIZE(sp156_all_time, sp156_all_time[Tipo de Serviço]))
+    qtd_servicos = COUNTROWS(SUMMARIZE(sp156_all_time, sp156_all_time[Serviço]))
+    ```
+
+    No final, a análise foi concluída e os resultados podem ser visualizados na imagem do relatório apresentado abaixo:
+
+    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/0ea83f68-9c86-46f0-8263-c3103e73d516)
+
+
+
+3. <b>Análise dos tipos de serviços</b>:
+
+    O campo "Tipo de Serviço" é utilizado para segmentar e determinar a natureza da ação que a Prefeitura deverá realizar. Por exemplo, pode se referir a uma vistoria em determinado local ou à vacinação de animais de estimação. Em outras palavras, o campo "Tipo de Serviço" é o meio pelo qual cada demanda ou solicitação é categorizada, garantindo que os serviços sejam direcionados e tratados adequadamente pela administração municipal.
 
     Foi criado um gráfico de linha que representa os anos de 2012 a 2022 no eixo Y, enquanto cada linha representa as cinco maiores solicitações de serviços. Esse gráfico permitirá visualizar as variações de cada problema ao longo dos anos, fornecendo insights sobre se os serviços prestados diminuíram ou aumentaram por algum motivo específico.
     
@@ -497,6 +523,19 @@ Com os dados disponíveis, será conduzida uma análise exploratória com o obje
 
     Algumas informações adicionais e insights foram incorporados ao painel, com o objetivo de fornecer uma análise mais abrangente para os stakeholders. O texto será adaptado e implementado no artigo, visando proporcionar uma visão mais clara sobre as tendências e padrões dos serviços prestados.
 
+
+4. <b>Análise dos serviços que não são Animais que Transmitem Doenças</b>:
+
+    Com base nas decisões anteriores devido à complexidade dos dados, foi necessário realizar uma análise separada dos serviços que não se referem a animais que transmitem doenças. Para isso, foi criado um gráfico de barras no Power BI, no qual o eixo Y representa a contagem de serviços e o eixo X representa a legenda dos serviços. Em seguida, foi aplicado um filtro para remover os serviços relacionados a "Animais que Transmitem Doenças" e selecionar os 8 serviços com maior contagem. Essa escolha se deu devido à proximidade dos valores nos 3 últimos serviços.
+    
+    Após essa etapa, foi gerado um gráfico de linhas que apresenta os 5 maiores serviços ao longo do tempo, permitindo observar a demanda de cada serviço ao longo dos anos e identificar possíveis anomalias nesse período.
+    
+    A seguir, é apresentado o resultado dessa análise, incluindo insights e os detalhes da pesquisa realizada.
+
+   ![Análise dos Diversos Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/95050c61-5522-4e0d-aac5-a5e4d71f205b)
+
+
+    
 
 
 <!-- LICENSE -->
