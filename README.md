@@ -91,13 +91,13 @@ Para realizar este projeto, foi usado as seguintes ferramenta:
 
 Como mencionado anteriormente, o objetivo deste projeto é identificar os principais pontos de melhoria nos serviços prestados e os problemas que afetam a população de São Paulo, no caso, com base no período de 2012 ao último mês de 2022. Com base nisso, faremos algumas perguntas:
 
-* Quais foram os maiores problemas?
+* Quais foram os maiores tipos de serviços?
 
 * Em relação aos serviços prestados, quais foram os que tiveram mais casos?
 
-* Quais distritos tiveram mais denúncias?
+* Quais distritos tiveram mais ocorrências?
 
-* Qual a quantidade de denúncias recebidas por ano?
+* Qual a quantidade de ocorrências recebidas por ano?
 
 * Qual a grandeza de denúncias de "Animais que transmitem doenças" e quais foram os casos que tiveram mais denúncias?
 
@@ -140,37 +140,37 @@ Após a criação do processo anterior, agora é possível implementar o web scr
    ```py
    # URL base do site da Prefeitura
    url_base = 'http://dados.prefeitura.sp.gov.br'
-   
+  
    # URL inicial onde estarão os links para os datasets
    url_inicial = 'http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156'
-   
+  
    # extensão do dataset para filtrar
    file_type = '.csv'
-   
-   for link in get_soup(url_inicial, r'^Dados do SP156 -.*'):
-       
+  
+   for link in get_soup(url_inicial, r'^Dados do SP156.*'):
+      
        # Pegar o link de download
        for page in get_soup(url_base+link['href'], r'^http://dados.prefeitura.sp.gov.br/dataset/.*'):
            link_download = page['href']
-           
+          
            # Verificar se é o arquivo a ser baixado é Excel
            if file_type in link_download:
-               
+              
                # Pegar o conteúdo do CSV
-               response_csv = requests.get(page['href'])
-               
+               response_csv = requests.get(link_download)
+              
                # Cada datset tem um encoding diferente, por isso foi necessário usar a biblioteca chardet para identificar 
                # automaticamente qual é.
                encoding = chardet.detect(response_csv.content)['encoding']
-               
+              
                # Colocar os dados na tabela auxiliar
                if int(link["title"][-4:]) >= 2020:
                    df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=';', encoding=encoding, low_memory=False)
                else:
                    df3 = pd.read_csv(StringIO(response_csv.content.decode(encoding)), sep=',', encoding=encoding, low_memory=False)
-                   
+                  
                dfs.append(df3)  # Adicionar o DataFrame intermediário à lista
-               
+              
                # Inserir os dados na planilha original
                print(f'Os dados do {link["title"]} foram inseridos com sucesso.')
    ```
@@ -438,7 +438,7 @@ Embora tenha obtido sucesso em todo o processo de garantir a inclusão dos distr
 
 ## Análise dos Dados
 
-Com os dados prontos, foi concluido o processo de análise. Inicialmente foi realizado uma análise exploratória dos dados, por meio da qual foi identificado insights e pontos relevantes relacionados ao serviço de controle de zoonoses da Prefeitura de São Paulo.
+Com os dados prontos, foi iniciado o processo de análise. Em primeiro lugar, foi realizado uma análise exploratória dos dados, por meio da qual foi identificado insights e pontos relevantes relacionados ao serviço de controle de zoonoses da Prefeitura de São Paulo.
 
 Com base nos resultados dessa análise, foi elaborado um artigo público com o objetivo de apresentar e divulgar as principais descobertas e conclusões obtidas. Esse artigo busca disseminar o conhecimento adquirido durante a análise dos dados, permitindo que outras pessoas tenham acesso às informações e possam se beneficiar delas.
 
@@ -460,7 +460,11 @@ Inicialmente, os dados foram importados utilizando o Power Query, resultando na 
 | 31/12/2022       | Animais | Criação inadequada de animais   | Condições de criação / Maus tratos                               | ERMELINO MATARAZZO    | INDEFERIDO            | 02/01/2023      |
 
 
-Com os dados disponíveis, será conduzida uma análise exploratória com o objetivo de extrair insights e conhecimentos relevantes. A seguir, será apresentado cada etapa realizada durante a análise.
+Com os dados disponíveis, será conduzida uma análise exploratória com o objetivo de extrair insights e conhecimentos relevantes. 
+
+É importante ressaltar que, para a análise realizada, todas as solicitações com o "Status da solicitação" definido como "cancelada" foram excluídas do conjunto de dados. Essa decisão foi tomada considerando que, nesses casos, o próprio usuário optou por retirar a queixa ou cancelar a solicitação, pois assim, será possível ter uma uma análise muito mais próxima da realidade.
+
+A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltando que em todas elas as ocorrências com status "cancelada" foram excluídas do conjunto de dados.
 
 1. <b>Análise do campo 'distrito'</b>:
 
@@ -497,20 +501,28 @@ Com os dados disponíveis, será conduzida uma análise exploratória com o obje
     % servicos_animal = DIVIDE([total_ocorrencias_animais], [total_ocorrencias_portal])
     ```
 
-    Durante essa etapa, também foi realizada a contagem dos tipos de serviços e serviços específicos relacionados a animais no portal. Para isso, foram criadas duas medidas distintas. A primeira medida denominada "qtd_tipo_servico" utilizou a função "SUMMARIZE" para agrupar os tipos de serviço e, em seguida, foi aplicada a função "COUNTROWS" para determinar quantos tipos de serviço estão presentes. A segunda medida seguiu uma fórmula semelhante, porém foi corretamente utilizada com base no campo "Serviço" para contar a quantidade de serviços específicos.
+    Depois, foi feita uma métrica pra saber a porcentagem de solicitações realidas (com "Status de solicitação" como "Finalizada"). Com o valor total
 
+    Também foi calculada a média de ocorrências por ano, a fim de identificar o volume de ocorrências ao longo do tempo. Com o uso da função "DIVIDE", foi possível obter o número total de ocorrências na tabela e calcular a média por ano. Esse cálculo foi realizado dividindo o total de ocorrências pelo número de anos extraido com o "DISTINCTCOUNT".
+
+    ```dax
+    media_ano = DIVIDE(COUNTROWS(sp156_all_time), DISTINCTCOUNT(sp156_all_time[Data de abertura].[Ano]))
+    ```
+    
+    Em seguida, foi realizada a contagem dos tipos de serviços e serviços específicos relacionados a animais no portal. Para isso, foram criadas duas medidas distintas. A primeira medida denominada "qtd_tipo_servico" utilizou a função "SUMMARIZE" para agrupar os tipos de serviço e, em seguida, foi aplicada a função "COUNTROWS" para determinar quantos tipos de serviço estão presentes. A segunda medida seguiu uma fórmula semelhante, porém foi corretamente utilizada com base no campo "Serviço" para contar a quantidade de serviços específicos.
+    
     ```dax
     qtd_tipo_servico = COUNTROWS(SUMMARIZE(sp156_all_time, sp156_all_time[Tipo de Serviço]))
     qtd_servicos = COUNTROWS(SUMMARIZE(sp156_all_time, sp156_all_time[Serviço]))
     ```
+    
+    No final, com a análise concluída e os resultados podem ser visualizados na imagem do relatório apresentado abaixo:
 
-    No final, a análise foi concluída e os resultados podem ser visualizados na imagem do relatório apresentado abaixo:
-
-    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/0ea83f68-9c86-46f0-8263-c3103e73d516)
+    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/a6b6f0f3-1654-45ef-9668-e132d34b3b75)
 
 
 
-3. <b>Análise dos tipos de serviços</b>:
+4. <b>Análise dos tipos de serviços</b>:
 
     O campo "Tipo de Serviço" é utilizado para segmentar e determinar a natureza da ação que a Prefeitura deverá realizar. Por exemplo, pode se referir a uma vistoria em determinado local ou à vacinação de animais de estimação. Em outras palavras, o campo "Tipo de Serviço" é o meio pelo qual cada demanda ou solicitação é categorizada, garantindo que os serviços sejam direcionados e tratados adequadamente pela administração municipal.
 
@@ -518,13 +530,13 @@ Com os dados disponíveis, será conduzida uma análise exploratória com o obje
     
     Além disso, um gráfico de barras foi criado ao lado para mostrar a proporção de cada solicitação em relação às demais. Esse gráfico facilitará a compreensão da distribuição relativa das solicitações e destacará quais problemas receberam maior ou menor número de pedidos.
 
-   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/aca67415-2e29-4454-8bf2-45b85bf100be)
+   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/bb0379a2-6f40-4152-8e29-498656c32aba)
+   
+
+    Algumas informações adicionais e insights foram incorporados ao painel, com o objetivo de fornecer uma análise mais abrangente para o analista. O texto será adaptado e implementado no artigo, visando proporcionar uma visão mais clara sobre as tendências e padrões dos serviços prestados.
 
 
-    Algumas informações adicionais e insights foram incorporados ao painel, com o objetivo de fornecer uma análise mais abrangente para os stakeholders. O texto será adaptado e implementado no artigo, visando proporcionar uma visão mais clara sobre as tendências e padrões dos serviços prestados.
-
-
-4. <b>Análise dos serviços que não são Animais que Transmitem Doenças</b>:
+5. <b>Análise dos serviços que NÃO são Animais que Transmitem Doenças</b>:
 
     Com base nas decisões anteriores devido à complexidade dos dados, foi necessário realizar uma análise separada dos serviços que não se referem a animais que transmitem doenças. Para isso, foi criado um gráfico de barras no Power BI, no qual o eixo Y representa a contagem de serviços e o eixo X representa a legenda dos serviços. Em seguida, foi aplicado um filtro para remover os serviços relacionados a "Animais que Transmitem Doenças" e selecionar os 8 serviços com maior contagem. Essa escolha se deu devido à proximidade dos valores nos 3 últimos serviços.
     
@@ -534,6 +546,8 @@ Com os dados disponíveis, será conduzida uma análise exploratória com o obje
 
    ![Análise dos Diversos Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/95050c61-5522-4e0d-aac5-a5e4d71f205b)
 
+
+6. <b>Análise dos serviços que SÃO Animais que Transmitem Doenças</b>:
 
     
 
