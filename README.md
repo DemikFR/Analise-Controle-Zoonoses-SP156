@@ -294,7 +294,7 @@ A seguir, serão enumeradas as ações realizadas para abordar essas questões:
     
     ```py
     df3.loc[(df3['Serviço'].str.contains('Pernilongo/Mosquito', regex=True)) | (df3['Serviço'] == 'Reclamação de Pernilongo'), 'Serviço'] = 'Reclamação de Pernilongos e Mosquitos'
-    df3.loc[(df3['Serviço'] == 'Abelhas e Vespas') | (df3['Serviço'] == 'Colméia/Vespeiro instalado'), 'Serviço'] = 'Remoção de Abelhas, Vespas ou Marimbondos'
+    df3.loc[(df3['Serviço'].str.contains('Abelha')) | (df3['Serviço'] == 'Colméia/Vespeiro instalado'), 'Serviço'] = 'Abelhas, Vespas ou Marimbondos'
     df3.loc[df3['Serviço'].str.contains('Escorpião', regex=True), 'Serviço'] = 'Escorpiões'
     df3.loc[df3['Serviço'] == 'Reclamação de Escorpião', 'Serviço'] = 'Reclamação de Escorpiões'
     df3.loc[df3['Serviço'] == 'Ocorrências com morcego', 'Serviço'] = 'Reclamação de Morcegos'
@@ -396,7 +396,19 @@ A seguir, serão enumeradas as ações realizadas para abordar essas questões:
 
     O método apply do Pandas foi utilizado na coluna "Serviço", invocando a função por meio de uma função lambda. A função lambda só aplicará a função se a coluna não contiver nenhuma sigla, uma vez que siglas não devem ser modificadas.
   
-     
+8. <b>Tratamento do "Status de solicitação"</b>
+
+    O campo relacionado ao status da solicitação apresenta algumas redundâncias, como o mesmo status com mudanças de gênero e outros status nos quais apenas a palavra usada difere, mas que indicam a mesma coisa. Para resolver esse problema, foi implementado o seguinte código para padronizar os status, resultando na redução para apenas os 4 status necessários.
+
+    ```py
+    df4['Status da solicitação'] = df4['Status da solicitação'].str.replace('CANCELADO', 'CANCELADA')
+    df4['Status da solicitação'] = df4['Status da solicitação'].str.replace('FINALIZADO', 'FINALIZADA')
+    df4['Status da solicitação'] = df4['Status da solicitação'].str.replace('REALIZADA', 'FINALIZADA')
+    df4['Status da solicitação'] = df4['Status da solicitação'].str.replace('INDEFERIDO', 'INDEFERIDA')
+    df4['Status da solicitação'] = df4['Status da solicitação'].str.replace('ABERTA', 'AGUARDANDO ATENDIMENTO')
+    df4['Status da solicitação'] = df4['Status da solicitação'].str.replace('EM ANDAMENTO', 'AGUARDANDO ATENDIMENTO')
+    ```
+
 9. <b>Formatação de datas</b>:
 
     Durante o processo de extração dos datasets, foi identificado que eles possuem três formatos diferentes para representar as datas. Esses formatos incluem apenas a data no formato "yyyy-mm-dd", uma combinação de data e hora no formato datetime com código e outra representação apenas como datetime.
@@ -457,7 +469,7 @@ Inicialmente, os dados foram importados utilizando o Power Query, resultando na 
 | 31/12/2022       | Animais | Exames, vacinas e castração     | Castrar cães e gatos gratuitamente                               | null                 | FINALIZADA            | 01/01/2023      |
 | 31/12/2022       | Animais | Exames, vacinas e castração     | Castrar cães e gatos gratuitamente                               | null                 | FINALIZADA            | 02/01/2023      |
 | 31/12/2022       | Animais | Adoção de animais               | Adotar cães e gatos                                              | null                 | FINALIZADA            | 13/01/2023      |
-| 31/12/2022       | Animais | Criação inadequada de animais   | Condições de criação / Maus tratos                               | ERMELINO MATARAZZO    | INDEFERIDO            | 02/01/2023      |
+| 31/12/2022       | Animais | Criação inadequada de animais   | Condições de criação / Maus tratos                               | ERMELINO MATARAZZO    | INDEFERIDA            | 02/01/2023      |
 
 
 Com os dados disponíveis, será conduzida uma análise exploratória com o objetivo de extrair insights e conhecimentos relevantes. 
@@ -489,17 +501,23 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
 
 2. <b>Análise dos Valores Gerais</b>:
 
-    A fim de obter uma visão geral abrangente dos serviços prestados pela Prefeitura de São Paulo, foi realizada uma análise comparativa entre as ocorrências relacionadas a animais e o número total de solicitações registradas no Portal, que foi identificado durante o pré-processamento como sendo de 13.862.242 solicitações abrangendo todos os assuntos.
+    A fim de obter uma visão geral abrangente dos serviços prestados pela Prefeitura de São Paulo, foi realizada uma análise comparativa entre as ocorrências relacionadas a animais e o número total de solicitações registradas no Portal, que foi identificado durante o pré-processamento como sendo de 14.183.650 solicitações abrangendo todos os assuntos.
 
     Para realizar a análise da proporção dos serviços relacionados a animais em relação ao total geral de solicitações, foram criadas duas medidas distintas. A primeira medida atribuiu o valor total de solicitações gerais informado acima, enquanto a segunda medida utilizou a fórmula "COUNTROWS" para contar as ocorrências específicas relacionadas a animais. Em seguida, foi utilizado o operador "DIVIDE" para calcular a proporção dos serviços relacionados a animais em relação ao total geral. Assim, foi identificado que os serviços de animais, compõem apenas 5% de todas as solicitações efetuadas no portal.
 
     Consequentemente, obteve-se o resultado que os serviços voltados para animais representam apenas 5% de todas as solicitações registradas no portal. Para apresentar, foi utilizar um gráfico de pizza para comparar ambos os valores.
 
     ```dax
-    total_ocorrencias_portal = 13862242
+    total_ocorrencias_portal = 14183650
     total_ocorrencias_animais = COUNTROWS(sp156_all_time)
     % servicos_animal = DIVIDE([total_ocorrencias_animais], [total_ocorrencias_portal])
     ```
+    
+    No mesmo processo, foi utilizada a seguinte fórmula para calcular a porcentagem de ocorrências finalizadas em relação ao total:
+
+    ```dax
+    % Finalizadas = DIVIDE([qtd_finalizadas], [total_ocorrencias_animais])
+    ```  
 
     Depois, foi feita uma métrica pra saber a porcentagem de solicitações realidas (com "Status de solicitação" como "Finalizada"). Com o valor total
 
@@ -518,7 +536,7 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
     
     No final, com a análise concluída e os resultados podem ser visualizados na imagem do relatório apresentado abaixo:
 
-    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/a6b6f0f3-1654-45ef-9668-e132d34b3b75)
+    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/aa2f9cf9-cfd8-422b-94aa-7f60e9e6ad0b)
 
 
 
@@ -530,13 +548,14 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
     
     Além disso, um gráfico de barras foi criado ao lado para mostrar a proporção de cada solicitação em relação às demais. Esse gráfico facilitará a compreensão da distribuição relativa das solicitações e destacará quais problemas receberam maior ou menor número de pedidos.
 
-   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/bb0379a2-6f40-4152-8e29-498656c32aba)
+   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/750eee85-8ae5-4d1f-9138-0e150cf52c54)
+
    
 
     Algumas informações adicionais e insights foram incorporados ao painel, com o objetivo de fornecer uma análise mais abrangente para o analista. O texto será adaptado e implementado no artigo, visando proporcionar uma visão mais clara sobre as tendências e padrões dos serviços prestados.
 
 
-5. <b>Análise dos serviços que NÃO são Animais que Transmitem Doenças</b>:
+6. <b>Análise dos serviços que NÃO são Animais que Transmitem Doenças</b>:
 
     Com base nas decisões anteriores devido à complexidade dos dados, foi necessário realizar uma análise separada dos serviços que não se referem a animais que transmitem doenças. Para isso, foi criado um gráfico de barras no Power BI, no qual o eixo Y representa a contagem de serviços e o eixo X representa a legenda dos serviços. Em seguida, foi aplicado um filtro para remover os serviços relacionados a "Animais que Transmitem Doenças" e selecionar os 8 serviços com maior contagem. Essa escolha se deu devido à proximidade dos valores nos 3 últimos serviços.
     
@@ -544,12 +563,15 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
     
     A seguir, é apresentado o resultado dessa análise, incluindo insights e os detalhes da pesquisa realizada.
 
-   ![Análise dos Diversos Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/95050c61-5522-4e0d-aac5-a5e4d71f205b)
+   ![Análise dos Diversos Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/6148206e-192f-4c4d-b41e-8b4e7d7e2e31)
+
+8. <b>Análise dos serviços que SÃO Animais que Transmitem Doenças</b>:
+
+    Neste estudo, adotou-se uma abordagem semelhante à análise anterior, porém focando nos animais que são transmissores de doenças. No gráfico de barras, foram selecionados apenas os 8 animais que apresentaram as maiores diferenças nas quantidades, a fim de destacar as variações mais significativas. Com base nessas informações, realizou-se uma pesquisa detalhada, explorando os insights adquiridos. Os resultados e conclusões obtidos estão apresentados no relatório a seguir.
 
 
-6. <b>Análise dos serviços que SÃO Animais que Transmitem Doenças</b>:
+   ![Análise dos Serviços Animais que Transmitem Doenças](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/361d28f4-1413-4d1d-b279-71811022574e)
 
-    
 
 
 <!-- LICENSE -->
