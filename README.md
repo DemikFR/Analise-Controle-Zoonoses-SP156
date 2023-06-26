@@ -543,7 +543,7 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
     
     No final, com a análise concluída e os resultados podem ser visualizados na imagem do relatório apresentado abaixo:
 
-    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/af2b75b3-5f4c-4f1c-af0b-28f792bc6ce7)
+    ![Análise Geral das Ocorrências](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/d54ba62c-cff9-49a7-b3ae-f5460fba9518)
 
 
 4. <b>Análise dos tipos de serviços</b>:
@@ -554,7 +554,7 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
     
     Além disso, um gráfico de barras foi criado ao lado para mostrar a proporção de cada solicitação em relação às demais. Esse gráfico facilitará a compreensão da distribuição relativa das solicitações e destacará quais problemas receberam maior ou menor número de pedidos.
 
-   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/572c3ebc-292d-4c63-894a-3544c1016e1f)
+   ![Análise dos Tipos de Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/5d9131c6-34d3-4ed9-83ce-e7b740972fbf)
 
 
     Algumas informações adicionais e insights foram incorporados ao painel, com o objetivo de fornecer uma análise mais abrangente para o analista. O texto será adaptado e implementado no artigo, visando proporcionar uma visão mais clara sobre as tendências e padrões dos serviços prestados.
@@ -568,21 +568,22 @@ A seguir, serão apresentadas as etapas realizadas durante a análise, ressaltan
     
     A seguir, é apresentado o resultado dessa análise, incluindo insights e os detalhes da pesquisa realizada.
 
-    ![Análise dos Diversos Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/9da16fa9-0e05-425a-a436-9fd296329119)
+    ![Análise dos Diversos Serviços](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/3397c9f1-7d60-42e1-b1cc-1f971a268f2c)
 
 
 8. <b>Análise dos serviços que SÃO Animais que Transmitem Doenças</b>:
 
     Neste estudo, adotou-se uma abordagem semelhante à análise anterior, porém focando nos animais que são transmissores de doenças. No gráfico de barras, foram selecionados apenas os 8 animais que apresentaram as maiores diferenças nas quantidades, a fim de destacar as variações mais significativas. Com base nessas informações, realizou-se uma pesquisa detalhada, explorando os insights adquiridos. Os resultados e conclusões obtidos estão apresentados no relatório a seguir.
 
-   ![Análise dos Serviços Animais que Transmitem Doenças](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/4b12cee9-8d2e-4e1c-8cde-6839ec077da7)
+   ![Análise dos Serviços Animais que Transmitem Doenças](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/2c435c56-cab0-4df2-b012-b8d2ffecf578)
 
 
 ### Dashboard Público
 
 Com o objetivo de aumentar a transparência e facilitar o acesso às informações, foi desenvolvido um dashboard que oferece uma segmentação dos tipos de serviços, além de um gráfico de barras e de linhas para visualizar a quantidade de solicitações por ano e mês. Essa ferramenta permite que qualquer pessoa tenha acesso aos dados e interaja com eles, facilitando a compreensão dos serviços específicos de acordo com suas necessidades individuais.
 
-![Dashboard](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/16fc3f99-1031-447e-9bfe-018c2deab4fe)
+![Dashboard](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/3cbbefe4-54f0-416c-bba9-14a926b07a3c)
+
 
 Clicando <a href="https://app.powerbi.com/view?r=eyJrIjoiZDk1MmEyMjQtZGMwOS00NWU0LWFmYmMtZTRkMmM0MzZjM2RiIiwidCI6IjExZGJiZmUyLTg5YjgtNDU0OS1iZTEwLWNlYzM2NGU1OTU1MSIsImMiOjR9">aqui</a> você poderá acessar o dashboard.
 
