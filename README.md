@@ -9,7 +9,6 @@
   <p align="center">
     Os dados usados se encontram na base de <a href="http://dados.prefeitura.sp.gov.br/dataset/dados-do-sp156">dados abertos da Prefeitura de SP</a>.
   </p>
-  <h3 align=center>🔨Projeto ainda em desenvolvimento.🔨</h3><br>
 </div>
 
 
@@ -38,6 +37,8 @@
       <a href="#análise-dos-dados">Análise dos Dados</a>
       <ul>
         <li><a href="#análise-exploratória-dos-dados">Análise Exploratória dos dados</a></li>
+        <li><a href="#dashboard-público">Dashboard Público</a></li>
+        <li><a href="#apresentação-da-análise">Apresentação da Análise</a></li>
       </ul>  
     </li>
     <li><a href="#license">License</a></li>
@@ -54,6 +55,12 @@ A finalidade do uso dos dados é realizar análises de dados para identificar pr
 
 Para ser feita esta análise, foi necessário um processo de web scraping para automatizar a extração dos datasets, pois eles estão separados por datas e períodos de ano em cada página diferente, depois foi feito um processo ETL para adequação aos requisitos de negócios, antes de salvar os dados.
 
+
+### Finalização
+
+Este projeto teve como fim, a elaboração de um artigo para apresentação ao público geral. 
+
+Você pode acessar clicando <a href="https://medium.com/@demik.freitast2d18/explorando-os-desafios-e-solu%C3%A7%C3%B5es-para-problemas-relacionados-a-animais-em-s%C3%A3o-paulo-531414d3d573">aqui</a>.
 
 
 ### Ferramentas
@@ -577,8 +584,16 @@ Com o objetivo de aumentar a transparência e facilitar o acesso às informaçõ
 
 ![Dashboard](https://github.com/DemikFR/Analise-Controle-Zoonoses-SP156/assets/102700735/16fc3f99-1031-447e-9bfe-018c2deab4fe)
 
+Clicando <a href="https://app.powerbi.com/view?r=eyJrIjoiZDk1MmEyMjQtZGMwOS00NWU0LWFmYmMtZTRkMmM0MzZjM2RiIiwidCI6IjExZGJiZmUyLTg5YjgtNDU0OS1iZTEwLWNlYzM2NGU1OTU1MSIsImMiOjR9">aqui</a> você poderá acessar o dashboard.
 
-Aqui você poderá acessar o dashboard: https://app.powerbi.com/view?r=eyJrIjoiZDk1MmEyMjQtZGMwOS00NWU0LWFmYmMtZTRkMmM0MzZjM2RiIiwidCI6IjExZGJiZmUyLTg5YjgtNDU0OS1iZTEwLWNlYzM2NGU1OTU1MSIsImMiOjR9
+
+### Apresentação da Análise
+
+Conforme acordado anteriormente, foi elaborado um artigo no Medium que apresenta de forma clara e explícita todos os pontos e insights obtidos por meio deste estudo. Além disso, o artigo inclui curiosidades, justificativas e propostas para aprimoramento. 
+
+Para visualizar o resultado completo, clique no link abaixo:
+
+https://medium.com/@demik.freitast2d18/explorando-os-desafios-e-solu%C3%A7%C3%B5es-para-problemas-relacionados-a-animais-em-s%C3%A3o-paulo-531414d3d573
 
 
 
